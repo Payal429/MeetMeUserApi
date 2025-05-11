@@ -6,7 +6,8 @@ const {
     onboardUser,
     verifyOtp,
     setPassword,
-    login
+    login, 
+    getUserTypeById
 } = require('../controllers/authController.js');
 
 // Route to onboard a user and send OTP
@@ -20,5 +21,8 @@ router.post('/set-password', setPassword);
 
 // Route for user login after setting password
 router.post('/login', login);
+
+// Route for getting the user type
+router.post('/get-usertype', getUserTypeById);
 
 module.exports = router;

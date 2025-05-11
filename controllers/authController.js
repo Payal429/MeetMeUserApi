@@ -138,3 +138,27 @@ exports.login = async (req, res) => {
     res.status(500).json({ error: 'Server Error' });
   }
 };
+
+exports.getUserTypeById = async (req, res) => {
+  const { idNum } = req.body;
+  const types = ['Student', 'Lecturer', 'Advisor'];
+
+  try {
+    for (const type of types) {
+      const userRef = db
+        .collection('meetme')
+        .doc(idNum);
+
+      const userDoc = await userRef.get();
+      if (userDoc.exists) {
+        return res.status(200).json({ typeOfUser: type });
+      }
+    }
+
+    return res.status(404).json({ error: 'User not found.' });
+  } catch (error) {
+    console.error('Error fetching user type:', error);
+    return res.status(500).json({ error: 'Server Error' });
+  }
+};
+
