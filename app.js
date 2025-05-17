@@ -14,7 +14,7 @@ app.use(morgan('dev')); // Logging
 app.use(express.json()); // Parses JSON request bodies
 
 // Routes
-app.use('/api/auth', authRoutes);
+app.use('/', authRoutes);
 
 // Catch-all Error Handler for unhandled routes
 app.use((req, res, next) => {

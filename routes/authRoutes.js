@@ -7,7 +7,9 @@ const {
     verifyOtp,
     setPassword,
     login, 
-    getUserTypeById
+    getUserTypeById,
+    resendOtp,
+    getUserById
 } = require('../controllers/authController.js');
 
 // Route to onboard a user and send OTP
@@ -24,5 +26,12 @@ router.post('/login', login);
 
 // Route for getting the user type
 router.post('/get-usertype', getUserTypeById);
+
+// Route to resend the otp
+router.post('/resend-otp', resendOtp);
+
+// Route to get the user by idnum
+router.get('/user/:idNum', getUserById);
+
 
 module.exports = router;

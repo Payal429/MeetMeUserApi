@@ -139,29 +139,6 @@ exports.login = async (req, res) => {
   }
 };
 
-// exports.getUserTypeById = async (req, res) => {
-//   const { idNum } = req.body;
-//   const types = ['Student', 'Lecturer', 'Advisor'];
-
-//   try {
-//     for (const type of types) {
-//       const userRef = db
-//         .collection('meetme')
-//         .doc(idNum);
-
-//       const userDoc = await userRef.get();
-//       if (userDoc.exists) {
-//         return res.status(200).json({ typeOfUser: type });
-//       }
-//     }
-
-//     return res.status(404).json({ error: 'User not found.' });
-//   } catch (error) {
-//     console.error('Error fetching user type:', error);
-//     return res.status(500).json({ error: 'Server Error' });
-//   }
-// };
-
 exports.getUserTypeById = async (req, res) => {
   const { idNum } = req.body;
 
@@ -184,3 +161,58 @@ exports.getUserTypeById = async (req, res) => {
   }
 };
 
+exports.resendOtp = async (req, res) => {
+  const { idNum } = req.body;
+
+  if (!idNum) return res.status(400).json({ error: 'idNum is required.' });
+
+  try {
+    const userRef = db.collection('meetme').doc(idNum);
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    const user = userDoc.data();
+    const newOtp = generateOtp();
+
+    await userRef.update({
+      otp: bcrypt.hashSync(newOtp, 10),
+      otpExpiresAt: Date.now() + 10 * 60 * 1000 // 10 minutes from now
+    });
+
+    await sendOtpEmail(user.email, newOtp, idNum);
+    res.status(200).json({ message: 'OTP resent successfully.' });
+
+  } catch (error) {
+    console.error('Error resending OTP:', error);
+    res.status(500).json({ error: 'Server Error' });
+  }
+};
+
+
+exports.getUserById = async (req, res) => {
+  const { idNum } = req.params;
+
+  try {
+    const userRef = db.collection('meetme').doc(idNum);
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    const userData = userDoc.data();
+    // Optionally remove sensitive info
+    delete userData.password;
+    delete userData.otp;
+    delete userData.otpExpiresAt;
+
+    res.status(200).json({ user: userData });
+
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ error: 'Server Error' });
+  }
+};
