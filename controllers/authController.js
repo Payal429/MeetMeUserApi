@@ -179,7 +179,8 @@ exports.resendOtp = async (req, res) => {
 
     await userRef.update({
       otp: bcrypt.hashSync(newOtp, 10),
-      otpExpiresAt: Date.now() + 10 * 60 * 1000 // 10 minutes from now
+      otpExpiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes from now
+      password: null, // 👈 clear the password
     });
 
     await sendOtpEmail(user.email, newOtp, idNum);
